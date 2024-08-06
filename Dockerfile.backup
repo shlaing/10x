@@ -1,32 +1,19 @@
 # Use PHP with Apache as the base image
 FROM php:8.2-apache as web
 
-# Enable Apache mod_rewrite for URL rewriting
-RUN a2enmod rewrite
-
 # Install Additional System Dependencies
 RUN apt-get update && apt-get install -y \
     libzip-dev \
-    libmariadb-dev \
-    unzip zip \
-    zlib1g-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev
+    zip
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Enable Apache mod_rewrite for URL rewriting
+RUN a2enmod rewrite
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql zip
-
-RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd
 
 # Configure Apache DocumentRoot to point to Laravel's public directory
 # and update Apache configuration files
